@@ -1,0 +1,26 @@
+{
+  "..\\node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts": {
+    "id": "..\\node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\use-websocket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts",
+    "files": [
+      "static/chunks/_app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js.js"
+    ]
+  },
+  "app\\create-post\\page.tsx -> @/components/CKEditor": {
+    "id": "app\\create-post\\page.tsx -> @/components/CKEditor",
+    "files": [
+      "static/chunks/_app-pages-browser_src_components_CKEditor_tsx.js"
+    ]
+  },
+  "components\\CKEditor.tsx -> @ckeditor/ckeditor5-build-classic": {
+    "id": "components\\CKEditor.tsx -> @ckeditor/ckeditor5-build-classic",
+    "files": [
+      "static/chunks/_app-pages-browser_node_modules_ckeditor_ckeditor5-build-classic_build_ckeditor_js.js"
+    ]
+  },
+  "components\\CKEditor.tsx -> @ckeditor/ckeditor5-react": {
+    "id": "components\\CKEditor.tsx -> @ckeditor/ckeditor5-react",
+    "files": [
+      "static/chunks/_app-pages-browser_node_modules_ckeditor_ckeditor5-react_dist_index_js.js"
+    ]
+  }
+}
