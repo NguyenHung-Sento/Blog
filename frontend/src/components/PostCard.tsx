@@ -8,6 +8,7 @@ import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
 import { postsService, type Post } from "@/services/posts"
 import { authService } from "@/services/auth"
+import { uploadService } from "@/services/upload"
 import CategoryBadge from "./CategoryBadge"
 import toast from "react-hot-toast"
 
@@ -64,7 +65,7 @@ export default function PostCard({ post, onLikeUpdate }: PostCardProps) {
       {post.featuredImage && (
         <div className="aspect-video relative">
           <Image
-            src={post.featuredImage || "/placeholder.svg?height=240&width=400"}
+            src={uploadService.getImageUrl(post.featuredImage) || "/placeholder.svg?height=240&width=400"}
             alt={post.title}
             fill
             className="object-cover"
@@ -82,7 +83,7 @@ export default function PostCard({ post, onLikeUpdate }: PostCardProps) {
           <div className="flex items-center">
             {post.author.avatar ? (
               <Image
-                src={post.author.avatar || "/placeholder.svg?height=40&width=40"}
+                src={uploadService.getImageUrl(post.author.avatar) || "/placeholder.svg?height=40&width=40"}
                 alt={post.author.fullName}
                 width={40}
                 height={40}

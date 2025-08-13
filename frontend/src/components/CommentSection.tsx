@@ -11,6 +11,7 @@ import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
 import { User, MessageCircle, Edit2, Trash2, Reply, Send } from "lucide-react"
 import toast from "react-hot-toast"
+import { uploadService } from "@/services/upload"
 
 const commentSchema = z.object({
   content: z.string().min(1, "Bình luận không được để trống").max(1000, "Bình luận không được quá 1000 ký tự"),
@@ -321,7 +322,7 @@ export default function CommentSection({
           <div className="flex items-start space-x-3">
             {currentUser.avatar ? (
               <Image
-                src={currentUser.avatar || "/placeholder.svg?height=40&width=40"}
+                src={uploadService.getImageUrl(currentUser.avatar) || "/placeholder.svg?height=40&width=40"}
                 alt={currentUser.fullName}
                 width={40}
                 height={40}

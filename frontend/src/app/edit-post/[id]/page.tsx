@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -9,6 +9,17 @@ import { postsService, type Post } from "@/services/posts"
 import { categoriesService, type Category } from "@/services/categories"
 import { authService } from "@/services/auth"
 import { Loader2, Save, Eye, ArrowLeft, Trash2 } from "lucide-react"
+import dynamic from "next/dynamic"
+import FeaturedImageUpload from "@/components/FeaturedImageUpload"
+// Dynamically import CKEditor to avoid SSR issues
+const CKEditor = dynamic(() => import("@/components/CKEditor"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-64 border border-gray-300 rounded-md flex items-center justify-center">
+      <div className="text-gray-500">Đang tải trình soạn thảo...</div>
+    </div>
+  ),
+})
 import toast from "react-hot-toast"
 import Link from "next/link"
 
@@ -33,6 +44,8 @@ export default function EditPostPage() {
   const [isPreview, setIsPreview] = useState(false)
   const [loading, setLoading] = useState(true)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [featuredImage, setFeaturedImage] = useState<string | null>(null)
+  const [content, setContent] = useState("")
 
   const currentUser = authService.getCurrentUser()
 
@@ -73,6 +86,8 @@ export default function EditPostPage() {
       }
 
       setPost(foundPost)
+      setFeaturedImage(foundPost.featuredImage || null)
+      setContent(foundPost.content || "")
       reset({
         title: foundPost.title,
         content: foundPost.content,
@@ -105,10 +120,11 @@ export default function EditPostPage() {
     try {
       const postData = {
         title: data.title,
-        content: data.content,
+        content: content,
         excerpt: data.excerpt,
         published: data.published,
         categoryId: data.categoryId ? Number.parseInt(data.categoryId) : undefined,
+        featuredImage,
       }
 
       const updatedPost = await postsService.updatePost(post.id, postData)
@@ -122,6 +138,16 @@ export default function EditPostPage() {
       setIsSubmitting(false)
     }
   }
+
+  // Đồng bộ content với form
+  useEffect(() => {
+    setValue("content", content)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [content, setValue])
+
+  const handleContentChange = useCallback((data: string) => {
+    setContent(data)
+  }, [])
 
   const handleSaveDraft = () => {
     setValue("published", false)
@@ -234,39 +260,55 @@ export default function EditPostPage() {
           {isPreview ? (
             /* Preview Mode */
             <div className="p-8">
+              {featuredImage && (
+                <div className="mb-8">
+                  <img
+                    src={
+                      featuredImage.startsWith("http")
+                        ? featuredImage
+                        : `${process.env.NEXT_PUBLIC_API_URL?.replace("/api", "")}${featuredImage}`
+                    }
+                    alt="Featured image"
+                    className="w-full h-80 object-cover rounded-lg"
+                  />
+                </div>
+              )}
               <h1 className="text-3xl font-bold text-gray-900 mb-6">{watchedTitle || post.title}</h1>
               <div
                 className="prose prose-lg max-w-none"
                 dangerouslySetInnerHTML={{
-                  __html: (watchedContent || post.content).replace(/\n/g, "<br>"),
+                  __html: content || "Nội dung bài viết sẽ hiển thị ở đây...",
                 }}
               />
             </div>
           ) : (
             /* Edit Mode */
-            <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-8">
+              {/* Featured Image Upload */}
+              <FeaturedImageUpload currentImage={featuredImage} onImageUpdate={setFeaturedImage} />
+
               {/* Title */}
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-3">
                   Tiêu đề bài viết *
                 </label>
                 <input
                   {...register("title")}
                   type="text"
-                  className="w-full px-4 py-3 text-xl border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-4 text-xl border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Nhập tiêu đề bài viết..."
                 />
-                {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
+                {errors.title && <p className="mt-2 text-sm text-red-600">{errors.title.message}</p>}
               </div>
 
               {/* Category */}
               <div>
-                <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700 mb-3">
                   Danh mục
                 </label>
                 <select
                   {...register("categoryId")}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Chọn danh mục</option>
                   {categories.map((category) => (
@@ -279,42 +321,37 @@ export default function EditPostPage() {
 
               {/* Excerpt */}
               <div>
-                <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-3">
                   Tóm tắt
                 </label>
                 <textarea
                   {...register("excerpt")}
                   rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   placeholder="Nhập tóm tắt ngắn gọn về bài viết..."
                 />
-                {errors.excerpt && <p className="mt-1 text-sm text-red-600">{errors.excerpt.message}</p>}
+                {errors.excerpt && <p className="mt-2 text-sm text-red-600">{errors.excerpt.message}</p>}
               </div>
 
               {/* Content */}
               <div>
-                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-                  Nội dung bài viết *
-                </label>
-                <textarea
-                  {...register("content")}
-                  rows={20}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  placeholder="Viết nội dung bài viết của bạn ở đây..."
-                />
-                {errors.content && <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>}
+                <label className="block text-sm font-medium text-gray-700 mb-3">Nội dung bài viết *</label>
+                <div className="border border-gray-300 rounded-lg overflow-hidden">
+                  <CKEditor data={content} onChange={handleContentChange} />
+                </div>
+                {errors.content && <p className="mt-2 text-sm text-red-600">{errors.content.message}</p>}
               </div>
 
               {/* Actions */}
               <div className="flex items-center justify-between pt-6 border-t border-gray-200">
                 <div className="text-sm text-gray-500">* Các trường bắt buộc</div>
 
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                   <button
                     type="button"
                     onClick={handleSaveDraft}
                     disabled={isSubmitting}
-                    className="flex items-center px-6 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                    className="flex items-center px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
                   >
                     <Save className="w-4 h-4 mr-2" />
                     {isSubmitting ? "Đang lưu..." : "Lưu nháp"}
@@ -324,7 +361,7 @@ export default function EditPostPage() {
                     type="button"
                     onClick={handlePublish}
                     disabled={isSubmitting}
-                    className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                    className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
                   >
                     {isSubmitting ? (
                       <>

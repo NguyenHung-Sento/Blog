@@ -128,7 +128,7 @@ const createPost = async (req, res) => {
       return res.status(400).json({ errors: errors.array() })
     }
 
-    const { title, content, excerpt, published = false, categoryId } = req.body
+    const { title, content, excerpt, published = false, categoryId, featuredImage } = req.body
     const authorId = req.user.id
 
     const slug = createSlug(title)
@@ -142,6 +142,7 @@ const createPost = async (req, res) => {
       publishedAt: published ? new Date() : null,
       authorId,
       categoryId: categoryId || null,
+      featuredImage: featuredImage || null,
     })
 
     const postWithDetails = await Post.findByPk(post.id, {
@@ -177,7 +178,7 @@ const updatePost = async (req, res) => {
     }
 
     const { id } = req.params
-    const { title, content, excerpt, published, categoryId } = req.body
+    const { title, content, excerpt, published, categoryId, featuredImage } = req.body
     const userId = req.user.id
 
     const post = await Post.findOne({
@@ -193,6 +194,7 @@ const updatePost = async (req, res) => {
       content,
       excerpt: excerpt || content.substring(0, 200) + "...",
       categoryId: categoryId || null,
+      featuredImage: featuredImage !== undefined ? featuredImage : post.featuredImage,
     }
 
     if (published !== undefined) {

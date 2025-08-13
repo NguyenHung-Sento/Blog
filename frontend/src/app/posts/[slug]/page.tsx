@@ -13,6 +13,7 @@ import { Loader2, Heart, MessageCircle, Eye, Calendar, User, ArrowLeft } from "l
 import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
 import toast from "react-hot-toast"
+import { uploadService } from "@/services/upload"
 
 export default function PostDetailPage() {
   const params = useParams()
@@ -165,7 +166,7 @@ export default function PostDetailPage() {
           {post.featuredImage && (
             <div className="aspect-video relative">
               <Image
-                src={post.featuredImage || "/placeholder.svg?height=400&width=800"}
+                src={uploadService.getImageUrl(post.featuredImage) || "/placeholder.svg?height=400&width=800"}
                 alt={post.title}
                 fill
                 className="object-cover"
@@ -194,7 +195,7 @@ export default function PostDetailPage() {
               <div className="flex items-center">
                 {post.author.avatar ? (
                   <Image
-                    src={post.author.avatar || "/placeholder.svg?height=50&width=50"}
+                    src={uploadService.getImageUrl(post.author.avatar) || "/placeholder.svg?height=50&width=50"}
                     alt={post.author.fullName}
                     width={50}
                     height={50}
@@ -260,7 +261,7 @@ export default function PostDetailPage() {
                 <div className="flex items-start">
                   {post.author.avatar ? (
                     <Image
-                      src={post.author.avatar || "/placeholder.svg?height=60&width=60"}
+                      src={uploadService.getImageUrl(post.author.avatar) || "/placeholder.svg?height=60&width=60"}
                       alt={post.author.fullName}
                       width={60}
                       height={60}

@@ -1,3 +1,4 @@
+const { validationResult } = require("express-validator")
 const { User, Post, Comment, Like, Category } = require("../models")
 const { Op } = require("sequelize")
 const bcrypt = require("bcryptjs")
@@ -12,17 +13,25 @@ const getAllUsers = async (req, res) => {
     const roleFilter = req.query.role || ""
     const statusFilter = req.query.status || ""
 
-    const whereClause = {
-      ...(search && {
-        [Op.or]: [
-          { username: { [Op.like]: `%${search}%` } },
-          { fullName: { [Op.like]: `%${search}%` } },
-          { email: { [Op.like]: `%${search}%` } },
-        ],
-      }),
-      ...(roleFilter && { role: roleFilter }),
-      ...(statusFilter === "active" && { isActive: true }),
-      ...(statusFilter === "inactive" && { isActive: false }),
+    const whereClause = {}
+
+    // Add search condition
+    if (search) {
+      whereClause[Op.or] = [
+        { username: { [Op.like]: `%${search}%` } },
+        { fullName: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+      ]
+    }
+
+    // Add role filter
+    if (roleFilter && roleFilter !== "all") {
+      whereClause.role = roleFilter
+    }
+
+    // Add status filter
+    if (statusFilter && statusFilter !== "all") {
+      whereClause.isActive = statusFilter === "active"
     }
 
     const { count, rows: users } = await User.findAndCountAll({
@@ -200,13 +209,21 @@ const getAllPostsAdmin = async (req, res) => {
     const statusFilter = req.query.status || ""
     const categoryFilter = req.query.category || ""
 
-    const whereClause = {
-      ...(search && {
-        [Op.or]: [{ title: { [Op.like]: `%${search}%` } }, { content: { [Op.like]: `%${search}%` } }],
-      }),
-      ...(statusFilter === "published" && { published: true }),
-      ...(statusFilter === "draft" && { published: false }),
-      ...(categoryFilter && { categoryId: Number.parseInt(categoryFilter) }),
+    const whereClause = {}
+
+    // Add search condition
+    if (search) {
+      whereClause[Op.or] = [{ title: { [Op.like]: `%${search}%` } }, { content: { [Op.like]: `%${search}%` } }]
+    }
+
+    // Add status filter
+    if (statusFilter && statusFilter !== "all") {
+      whereClause.published = statusFilter === "published"
+    }
+
+    // Add category filter
+    if (categoryFilter && categoryFilter !== "all") {
+      whereClause.categoryId = Number.parseInt(categoryFilter)
     }
 
     const { count, rows: posts } = await Post.findAndCountAll({
@@ -360,8 +377,8 @@ const getDashboardStats = async (req, res) => {
       ],
     })
 
-    const totalViews = posts.reduce((sum, post) => sum + post.viewCount, 0)
-    const totalLikes = posts.reduce((sum, post) => sum + post.likes.length, 0)
+    const totalViews = posts.reduce((sum, post) => sum + (post.viewCount || 0), 0)
+    const totalLikes = posts.reduce((sum, post) => sum + (post.likes ? post.likes.length : 0), 0)
 
     res.json({
       stats: {

@@ -95,6 +95,39 @@ const getCategoryBySlug = async (req, res) => {
   }
 }
 
+const getCategoryById = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const category = await Category.findByPk(id, {
+      include: [
+        {
+          model: Post,
+          as: "posts",
+          where: { published: true },
+          attributes: ["id"],
+          required: false,
+        },
+      ],
+    })
+
+    if (!category) {
+      return res.status(404).json({ error: "Category not found" })
+    }
+
+    const categoryWithCount = {
+      ...category.toJSON(),
+      postCount: category.posts ? category.posts.length : 0,
+      posts: undefined,
+    }
+
+    res.json({ category: categoryWithCount })
+  } catch (error) {
+    console.error("Get category by ID error:", error)
+    res.status(500).json({ error: "Internal server error" })
+  }
+}
+
 const createCategory = async (req, res) => {
   try {
     const errors = validationResult(req)
@@ -187,6 +220,7 @@ const deleteCategory = async (req, res) => {
 module.exports = {
   getAllCategories,
   getCategoryBySlug,
+  getCategoryById,
   createCategory,
   updateCategory,
   deleteCategory,
