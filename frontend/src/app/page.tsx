@@ -107,7 +107,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Chào mừng đến với Blog cá nhân</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Chào mừng đến với Blog2Z</h1>
           <p className="text-xl text-gray-600">Khám phá những câu chuyện thú vị và chia sẻ kiến thức</p>
         </div>
 

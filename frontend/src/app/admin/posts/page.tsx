@@ -25,6 +25,7 @@ import {
 import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
 import toast from "react-hot-toast"
+import { uploadService } from "@/services/upload"
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<AdminPost[]>([])
@@ -224,7 +225,7 @@ export default function AdminPostsPage() {
                 {post.featuredImage && (
                   <div className="aspect-video relative">
                     <Image
-                      src={post.featuredImage || "/placeholder.svg"}
+                      src={uploadService.getImageUrl(post.featuredImage) || "/placeholder.svg"}
                       alt={post.title}
                       fill
                       className="object-cover"

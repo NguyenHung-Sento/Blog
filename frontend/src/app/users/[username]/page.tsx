@@ -1,109 +1,136 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
-import { usersService, type UserProfile, type UserPost } from "@/services/users"
-import { followService } from "@/services/follow"
-import { authService } from "@/services/auth"
-import PostCard from "@/components/PostCard"
-import { User, Calendar, FileText, Eye, Heart, ArrowLeft, Loader2, UserPlus, UserMinus, Users } from "lucide-react"
-import { formatDistanceToNow } from "date-fns"
-import { vi } from "date-fns/locale"
-import toast from "react-hot-toast"
-import { uploadService } from "@/services/upload"
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  usersService,
+  type UserProfile,
+  type UserPost,
+} from "@/services/users";
+import { followService } from "@/services/follow";
+import { authService } from "@/services/auth";
+import PostCard from "@/components/PostCard";
+import {
+  User,
+  Calendar,
+  FileText,
+  Eye,
+  Heart,
+  ArrowLeft,
+  Loader2,
+  UserPlus,
+  UserMinus,
+  Users,
+} from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
+import toast from "react-hot-toast";
+import { uploadService } from "@/services/upload";
 
 export default function UserProfilePage() {
-  const params = useParams()
-  const username = params.username as string
+  const params = useParams();
+  const username = params.username as string;
 
-  const [user, setUser] = useState<UserProfile | null>(null)
-  const [posts, setPosts] = useState<UserPost[]>([])
-  const [loading, setLoading] = useState(true)
-  const [postsLoading, setPostsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [isFollowing, setIsFollowing] = useState(false)
-  const [followLoading, setFollowLoading] = useState(false)
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [posts, setPosts] = useState<UserPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [postsLoading, setPostsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+  const [followStatusLoading, setFollowStatusLoading] = useState(false);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 0,
     totalPosts: 0,
     hasNext: false,
     hasPrev: false,
-  })
+  });
 
-  const currentUser = authService.getCurrentUser()
+  const currentUser = authService.getCurrentUser();
 
   useEffect(() => {
     if (username) {
-      loadUserProfile()
-      loadUserPosts()
-      if (currentUser) {
-        checkFollowStatus()
-      }
+      loadUserProfile();
+      loadUserPosts();
     }
-  }, [])
+  }, [user?.id, currentUser?.id]);
+
+  // Separate effect for follow status to avoid dependency issues
+  useEffect(() => {
+    if (user && currentUser && currentUser.id !== user.id) {
+      checkFollowStatus();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [username]);
 
   const loadUserProfile = async () => {
     try {
-      setLoading(true)
-      setError(null)
-      const userProfile = await usersService.getUserByUsername(username)
-      setUser(userProfile)
+      setLoading(true);
+      setError(null);
+      const userProfile = await usersService.getUserByUsername(username);
+      setUser(userProfile);
     } catch (err: any) {
-      console.error("Error loading user profile:", err)
+      console.error("Error loading user profile:", err);
       if (err.response?.status === 404) {
-        setError("Người dùng không tồn tại")
+        setError("Người dùng không tồn tại");
       } else {
-        setError("Không thể tải thông tin người dùng")
+        setError("Không thể tải thông tin người dùng");
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const loadUserPosts = async (page = 1) => {
     try {
-      setPostsLoading(true)
-      const response = await usersService.getUserPosts(username, page, 6)
-      setPosts(response.posts)
-      setPagination(response.pagination)
+      setPostsLoading(true);
+      const response = await usersService.getUserPosts(username, page, 6);
+      setPosts(response.posts);
+      setPagination(response.pagination);
     } catch (err) {
-      console.error("Error loading user posts:", err)
-      toast.error("Không thể tải bài viết")
+      console.error("Error loading user posts:", err);
+      toast.error("Không thể tải bài viết");
     } finally {
-      setPostsLoading(false)
+      setPostsLoading(false);
     }
-  }
+  };
 
   const checkFollowStatus = async () => {
-    if (!user || !currentUser) return
+    if (!user || !currentUser || currentUser.id === user.id) return;
 
     try {
-      const result = await followService.checkFollowStatus(user.id)
-      setIsFollowing(result.following)
+      setFollowStatusLoading(true);
+      const result = await followService.checkFollowStatus(user.id);
+      setIsFollowing(result.following);
     } catch (error) {
-      console.error("Error checking follow status:", error)
+      console.error("Error checking follow status:", error);
+    } finally {
+      setFollowStatusLoading(false);
     }
-  }
+  };
 
   const handleFollowToggle = async () => {
     if (!currentUser || !user) {
-      toast.error("Vui lòng đăng nhập để theo dõi")
-      return
+      toast.error("Vui lòng đăng nhập để theo dõi");
+      return;
     }
 
     if (currentUser.id === user.id) {
-      toast.error("Không thể theo dõi chính mình")
-      return
+      toast.error("Không thể theo dõi chính mình");
+      return;
     }
 
-    setFollowLoading(true)
+    setFollowLoading(true);
     try {
       if (isFollowing) {
-        await followService.unfollowUser(user.id)
-        setIsFollowing(false)
+        await followService.unfollowUser(user.id);
+        setIsFollowing(false);
         setUser((prev) =>
           prev
             ? {
@@ -113,12 +140,12 @@ export default function UserProfilePage() {
                   followers: prev.followStats.followers - 1,
                 },
               }
-            : null,
-        )
-        toast.success("Đã bỏ theo dõi")
+            : null
+        );
+        toast.success("Đã bỏ theo dõi");
       } else {
-        await followService.followUser(user.id)
-        setIsFollowing(true)
+        await followService.followUser(user.id);
+        setIsFollowing(true);
         setUser((prev) =>
           prev
             ? {
@@ -128,54 +155,58 @@ export default function UserProfilePage() {
                   followers: prev.followStats.followers + 1,
                 },
               }
-            : null,
-        )
-        toast.success("Đã theo dõi")
+            : null
+        );
+        toast.success("Đã theo dõi");
       }
-    } catch (error) {
-      console.error("Follow toggle error:", error)
-      toast.error("Có lỗi xảy ra")
+    } catch (error: any) {
+      console.error("Follow toggle error:", error);
+      if (error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Có lỗi xảy ra");
+      }
     } finally {
-      setFollowLoading(false)
+      setFollowLoading(false);
     }
-  }
+  };
 
   const handleLikeUpdate = (postId: number, liked: boolean) => {
     setPosts((prevPosts) =>
       prevPosts.map((post) => {
         if (post.id === postId) {
-          const currentUserId = currentUser?.id || 0
+          const currentUserId = currentUser?.id || 0;
           if (liked) {
             return {
               ...post,
               likes: [...post.likes, { userId: currentUserId }],
               userLiked: true,
-            }
+            };
           } else {
             return {
               ...post,
               likes: post.likes.filter((like) => like.userId !== currentUserId),
               userLiked: false,
-            }
+            };
           }
         }
-        return post
-      }),
-    )
-  }
+        return post;
+      })
+    );
+  };
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
-      loadUserPosts(newPage)
+      loadUserPosts(newPage);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
-    )
+    );
   }
 
   if (error || !user) {
@@ -183,26 +214,34 @@ export default function UserProfilePage() {
       <div className="min-h-screen bg-gray-50">
         <main className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <p className="text-red-500 text-lg mb-4">{error || "Người dùng không tồn tại"}</p>
-            <Link href="/" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+            <p className="text-red-500 text-lg mb-4">
+              {error || "Người dùng không tồn tại"}
+            </p>
+            <Link
+              href="/"
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            >
               Về trang chủ
             </Link>
           </div>
         </main>
       </div>
-    )
+    );
   }
 
-  const totalViews = posts.reduce((sum, post) => sum + post.viewCount, 0)
-  const totalLikes = posts.reduce((sum, post) => sum + post.likes.length, 0)
-  const isOwnProfile = currentUser?.username === username
+  const totalViews = posts.reduce((sum, post) => sum + post.viewCount, 0);
+  const totalLikes = posts.reduce((sum, post) => sum + post.likes.length, 0);
+  const isOwnProfile = currentUser?.username === username;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Back button */}
         <div className="mb-6">
-          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+          <Link
+            href="/"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Quay lại
           </Link>
@@ -215,7 +254,10 @@ export default function UserProfilePage() {
               <div className="flex items-center">
                 {user.avatar ? (
                   <Image
-                    src={uploadService.getImageUrl(user.avatar) || "/placeholder.svg?height=120&width=120"}
+                    src={
+                      uploadService.getImageUrl(user.avatar) ||
+                      "/placeholder.svg?height=120&width=120"
+                    }
                     alt={user.fullName}
                     width={120}
                     height={120}
@@ -245,10 +287,14 @@ export default function UserProfilePage() {
                   <div className="flex items-center space-x-4 mt-3 text-blue-100">
                     <div className="flex items-center">
                       <Users className="w-4 h-4 mr-1" />
-                      <span className="text-sm">{user.followStats.followers} người theo dõi</span>
+                      <span className="text-sm">
+                        {user.followStats.followers} người theo dõi
+                      </span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-sm">{user.followStats.following} đang theo dõi</span>
+                      <span className="text-sm">
+                        {user.followStats.following} đang theo dõi
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -258,21 +304,27 @@ export default function UserProfilePage() {
               {currentUser && !isOwnProfile && (
                 <button
                   onClick={handleFollowToggle}
-                  disabled={followLoading}
+                  disabled={followLoading || followStatusLoading}
                   className={`flex items-center px-6 py-3 rounded-md font-medium transition-colors disabled:opacity-50 ${
                     isFollowing
                       ? "bg-gray-600 text-white hover:bg-gray-700"
                       : "bg-white text-blue-600 hover:bg-gray-100"
                   }`}
                 >
-                  {followLoading ? (
+                  {followLoading || followStatusLoading ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : isFollowing ? (
                     <UserMinus className="w-4 h-4 mr-2" />
                   ) : (
                     <UserPlus className="w-4 h-4 mr-2" />
                   )}
-                  {followLoading ? "Đang xử lý..." : isFollowing ? "Bỏ theo dõi" : "Theo dõi"}
+                  {followLoading
+                    ? "Đang xử lý..."
+                    : followStatusLoading
+                    ? "Đang tải..."
+                    : isFollowing
+                    ? "Bỏ theo dõi"
+                    : "Theo dõi"}
                 </button>
               )}
             </div>
@@ -282,7 +334,9 @@ export default function UserProfilePage() {
             {/* Bio */}
             {user.bio && (
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">Giới thiệu</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                  Giới thiệu
+                </h2>
                 <p className="text-gray-700 whitespace-pre-wrap">{user.bio}</p>
               </div>
             )}
@@ -293,7 +347,9 @@ export default function UserProfilePage() {
                 <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mx-auto mb-2">
                   <FileText className="w-6 h-6 text-blue-600" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900">{user.postCount}</div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {user.postCount}
+                </div>
                 <div className="text-sm text-gray-500">Bài viết</div>
               </div>
 
@@ -301,7 +357,9 @@ export default function UserProfilePage() {
                 <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mx-auto mb-2">
                   <Eye className="w-6 h-6 text-green-600" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900">{totalViews}</div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {totalViews}
+                </div>
                 <div className="text-sm text-gray-500">Lượt xem</div>
               </div>
 
@@ -309,7 +367,9 @@ export default function UserProfilePage() {
                 <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-lg mx-auto mb-2">
                   <Heart className="w-6 h-6 text-red-600" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900">{totalLikes}</div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {totalLikes}
+                </div>
                 <div className="text-sm text-gray-500">Lượt thích</div>
               </div>
 
@@ -317,7 +377,9 @@ export default function UserProfilePage() {
                 <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mx-auto mb-2">
                   <Users className="w-6 h-6 text-purple-600" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900">{user.followStats.followers}</div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {user.followStats.followers}
+                </div>
                 <div className="text-sm text-gray-500">Người theo dõi</div>
               </div>
             </div>
@@ -341,7 +403,11 @@ export default function UserProfilePage() {
               <>
                 <div className="space-y-8">
                   {posts.map((post) => (
-                    <PostCard key={post.id} post={post} onLikeUpdate={handleLikeUpdate} />
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      onLikeUpdate={handleLikeUpdate}
+                    />
                   ))}
                 </div>
 
@@ -349,7 +415,9 @@ export default function UserProfilePage() {
                 {pagination.totalPages > 1 && (
                   <div className="flex justify-center items-center space-x-2 mt-8">
                     <button
-                      onClick={() => handlePageChange(pagination.currentPage - 1)}
+                      onClick={() =>
+                        handlePageChange(pagination.currentPage - 1)
+                      }
                       disabled={!pagination.hasPrev}
                       className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -357,7 +425,10 @@ export default function UserProfilePage() {
                     </button>
 
                     <div className="flex space-x-1">
-                      {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                      {Array.from(
+                        { length: pagination.totalPages },
+                        (_, i) => i + 1
+                      ).map((page) => (
                         <button
                           key={page}
                           onClick={() => handlePageChange(page)}
@@ -373,7 +444,9 @@ export default function UserProfilePage() {
                     </div>
 
                     <button
-                      onClick={() => handlePageChange(pagination.currentPage + 1)}
+                      onClick={() =>
+                        handlePageChange(pagination.currentPage + 1)
+                      }
                       disabled={!pagination.hasNext}
                       className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -385,12 +458,14 @@ export default function UserProfilePage() {
             ) : (
               <div className="text-center py-12">
                 <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">{user.fullName} chưa có bài viết nào.</p>
+                <p className="text-gray-500 text-lg">
+                  {user.fullName} chưa có bài viết nào.
+                </p>
               </div>
             )}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

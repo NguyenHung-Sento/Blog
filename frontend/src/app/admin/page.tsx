@@ -10,6 +10,7 @@ import { Users, FileText, Tag, MessageCircle, Eye, Heart, Shield, Activity } fro
 import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
 import toast from "react-hot-toast"
+import { uploadService } from "@/services/upload"
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
@@ -214,7 +215,7 @@ export default function AdminDashboard() {
                     <div key={post.id} className="flex items-start space-x-3">
                       {post.featuredImage ? (
                         <Image
-                          src={post.featuredImage || "/placeholder.svg"}
+                          src={uploadService.getImageUrl(post.featuredImage) || "/placeholder.svg"}
                           alt={post.title}
                           width={60}
                           height={40}
@@ -279,7 +280,7 @@ export default function AdminDashboard() {
                     <div key={user.id} className="flex items-center space-x-3">
                       {user.avatar ? (
                         <Image
-                          src={user.avatar || "/placeholder.svg"}
+                          src={uploadService.getImageUrl(user.avatar) || "/placeholder.svg"}
                           alt={user.fullName}
                           width={40}
                           height={40}

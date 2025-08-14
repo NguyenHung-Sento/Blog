@@ -137,6 +137,10 @@ const checkFollowStatus = async (req, res) => {
     const { userId } = req.params
     const followerId = req.user.id
 
+    if (!followerId) {
+      return res.json({ following: false })
+    }
+
     const follow = await Follow.findOne({
       where: { followerId, followingId: userId },
     })

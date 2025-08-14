@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { postsService, type Post } from "@/services/posts"
 import { authService } from "@/services/auth"
@@ -9,10 +8,13 @@ import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
 import { PenTool, Eye, Heart, MessageCircle, Edit2, Trash2, Plus, FileText, BarChart3, Settings } from "lucide-react"
 import toast from "react-hot-toast"
+import LoadingLink from "@/components/LoadingLink"
+import LoadingButton from "@/components/LoadingButton"
 
 export default function DashboardPage() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
   const [stats, setStats] = useState({
     totalPosts: 0,
     publishedPosts: 0,
@@ -36,7 +38,7 @@ export default function DashboardPage() {
   const loadUserPosts = async () => {
     try {
       setLoading(true)
-      const response = await postsService.getUserPosts(1, 50) // Load more posts for dashboard
+      const response = await postsService.getUserPosts(1, 50)
       setPosts(response.posts)
 
       // Calculate stats
@@ -64,6 +66,7 @@ export default function DashboardPage() {
   const handleDeletePost = async (postId: number) => {
     if (!confirm("Bạn có chắc chắn muốn xóa bài viết này?")) return
 
+    setDeletingId(postId)
     try {
       await postsService.deletePost(postId)
       setPosts(posts.filter((post) => post.id !== postId))
@@ -87,6 +90,8 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Error deleting post:", error)
       toast.error("Có lỗi xảy ra khi xóa bài viết")
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -101,12 +106,13 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600 mb-4">Vui lòng đăng nhập để truy cập dashboard</p>
-          <Link
+          <LoadingLink
             href="/login"
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            loadingText="Đang mở trang đăng nhập..."
           >
             Đăng nhập
-          </Link>
+          </LoadingLink>
         </div>
       </div>
     )
@@ -122,20 +128,22 @@ export default function DashboardPage() {
             <p className="text-gray-600 mt-1">Chào mừng trở lại, {currentUser.fullName}!</p>
           </div>
           <div className="flex items-center space-x-3">
-            <Link
+            <LoadingLink
               href="/profile"
               className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+              loadingText="Đang tải cài đặt..."
             >
               <Settings className="w-4 h-4 mr-2" />
               Cài đặt
-            </Link>
-            <Link
+            </LoadingLink>
+            <LoadingLink
               href="/create-post"
               className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              loadingText="Đang mở trình soạn thảo..."
             >
               <Plus className="w-4 h-4 mr-2" />
               Viết bài mới
-            </Link>
+            </LoadingLink>
           </div>
         </div>
 
@@ -242,12 +250,13 @@ export default function DashboardPage() {
                   >
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <Link
+                        <LoadingLink
                           href={`/posts/${post.slug}`}
                           className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                          loadingText="Đang tải bài viết..."
                         >
                           {post.title}
-                        </Link>
+                        </LoadingLink>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
                             post.published ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
@@ -291,27 +300,30 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                      <Link
+                      <LoadingLink
                         href={`/posts/${post.slug}`}
                         className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
-                        title="Xem bài viết"
+                        loadingText="Đang tải bài viết..."
                       >
                         <Eye className="w-4 h-4" />
-                      </Link>
-                      <Link
+                      </LoadingLink>
+                      <LoadingLink
                         href={`/edit-post/${post.id}`}
                         className="p-2 text-gray-400 hover:text-green-600 transition-colors"
-                        title="Chỉnh sửa"
+                        loadingText="Đang mở trình chỉnh sửa..."
                       >
                         <Edit2 className="w-4 h-4" />
-                      </Link>
-                      <button
+                      </LoadingLink>
+                      <LoadingButton
                         onClick={() => handleDeletePost(post.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                        title="Xóa bài viết"
+                        loading={deletingId === post.id}
+                        loadingText=""
+                        variant="danger"
+                        size="sm"
+                        className="!p-2 !bg-transparent !text-gray-400 hover:!text-red-600 hover:!bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />
-                      </button>
+                      </LoadingButton>
                     </div>
                   </div>
                 ))}
@@ -324,13 +336,14 @@ export default function DashboardPage() {
                   {activeTab === "published" && "Bạn chưa có bài viết đã xuất bản"}
                   {activeTab === "draft" && "Bạn chưa có bản nháp nào"}
                 </p>
-                <Link
+                <LoadingLink
                   href="/create-post"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  loadingText="Đang mở trình soạn thảo..."
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Viết bài đầu tiên
-                </Link>
+                </LoadingLink>
               </div>
             )}
           </div>

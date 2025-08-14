@@ -1,26 +1,14 @@
-const User = require("../models/User")
-const Post = require("../models/Post")
-const Follow = require("../models/Follow")
-const Like = require("../models/Like")
-const Comment = require("../models/Comment")
-const Category = require("../models/Category")
+const { User, Post, Follow, Like, Comment, Category } = require("../models")
 const { Op } = require("sequelize")
 
-// Get user profile by username
+// Get user profile by username (public)
 const getUserByUsername = async (req, res) => {
   try {
     const { username } = req.params
 
     const user = await User.findOne({
-      where: { username },
+      where: { username, isActive: true },
       attributes: ["id", "username", "fullName", "avatar", "bio", "createdAt"],
-      include: [
-        {
-          model: Post,
-          as: "posts",
-          attributes: ["id"],
-        },
-      ],
     })
 
     if (!user) {
@@ -32,7 +20,7 @@ const getUserByUsername = async (req, res) => {
 
     // Get post count
     const postCount = await Post.count({
-      where: { authorId: user.id },
+      where: { authorId: user.id, published: true },
     })
 
     // Get follow stats
@@ -68,7 +56,7 @@ const getUserByUsername = async (req, res) => {
   }
 }
 
-// Get user posts by username
+// Get user posts by username (public but needs auth for like status)
 const getUserPosts = async (req, res) => {
   try {
     const { username } = req.params
@@ -78,7 +66,7 @@ const getUserPosts = async (req, res) => {
 
     // First find the user
     const user = await User.findOne({
-      where: { username },
+      where: { username, isActive: true },
       attributes: ["id"],
     })
 
@@ -91,7 +79,7 @@ const getUserPosts = async (req, res) => {
 
     // Get posts with pagination
     const { count, rows: posts } = await Post.findAndCountAll({
-      where: { authorId: user.id },
+      where: { authorId: user.id, published: true },
       include: [
         {
           model: User,
@@ -161,106 +149,7 @@ const getUserPosts = async (req, res) => {
   }
 }
 
-// Get current user profile
-const getCurrentUser = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id, {
-      attributes: ["id", "username", "fullName", "email", "avatar", "bio", "role", "createdAt"],
-    })
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Người dùng không tồn tại",
-      })
-    }
-
-    res.json({
-      success: true,
-      data: user,
-    })
-  } catch (error) {
-    console.error("Get current user error:", error)
-    res.status(500).json({
-      success: false,
-      message: "Lỗi server",
-    })
-  }
-}
-
-// Update user profile
-const updateProfile = async (req, res) => {
-  try {
-    const { fullName, bio } = req.body
-    const userId = req.user.id
-
-    const user = await User.findByPk(userId)
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Người dùng không tồn tại",
-      })
-    }
-
-    // Update user data
-    const updateData = {}
-    if (fullName !== undefined) updateData.fullName = fullName
-    if (bio !== undefined) updateData.bio = bio
-
-    await user.update(updateData)
-
-    // Return updated user
-    const updatedUser = await User.findByPk(userId, {
-      attributes: ["id", "username", "fullName", "email", "avatar", "bio", "role", "createdAt"],
-    })
-
-    res.json({
-      success: true,
-      data: updatedUser,
-      message: "Cập nhật thông tin thành công",
-    })
-  } catch (error) {
-    console.error("Update profile error:", error)
-    res.status(500).json({
-      success: false,
-      message: "Lỗi server",
-    })
-  }
-}
-
-// Update avatar
-const updateAvatar = async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "Vui lòng chọn ảnh",
-      })
-    }
-
-    const userId = req.user.id
-    const avatarPath = `/uploads/avatars/${req.file.filename}`
-
-    await User.update({ avatar: avatarPath }, { where: { id: userId } })
-
-    res.json({
-      success: true,
-      data: { avatar: avatarPath },
-      message: "Cập nhật ảnh đại diện thành công",
-    })
-  } catch (error) {
-    console.error("Update avatar error:", error)
-    res.status(500).json({
-      success: false,
-      message: "Lỗi server",
-    })
-  }
-}
-
 module.exports = {
-  getCurrentUser,
-  updateProfile,
-  updateAvatar,
   getUserByUsername,
   getUserPosts,
 }

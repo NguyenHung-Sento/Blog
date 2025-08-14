@@ -30,6 +30,11 @@ export interface UpdateProfileData {
   bio?: string
 }
 
+export interface ChangePasswordData {
+  currentPassword: string
+  newPassword: string
+}
+
 export const authService = {
   async login(data: LoginData) {
     const response = await api.post("/auth/login", data)
@@ -68,6 +73,37 @@ export const authService = {
     localStorage.setItem("user", JSON.stringify(user))
 
     return user
+  },
+
+  async updateAvatar(file: File) {
+    const formData = new FormData()
+    formData.append("avatar", file)
+
+    const response = await api.put("/auth/avatar", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+
+    const user = response.data.user
+    localStorage.setItem("user", JSON.stringify(user))
+
+    return response.data
+  },
+
+  async changePassword(data: ChangePasswordData) {
+    const response = await api.put("/auth/change-password", data)
+    return response.data
+  },
+
+  async forgotPassword(email: string) {
+    const response = await api.post("/auth/forgot-password", { email })
+    return response.data
+  },
+
+  async resetPassword(token: string, password: string) {
+    const response = await api.post("/auth/reset-password", { token, password })
+    return response.data
   },
 
   logout() {

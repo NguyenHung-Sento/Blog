@@ -1,8 +1,7 @@
 "use client"
 
-import Link from "next/link"
-import Image from "next/image"
 import { useState } from "react"
+import Image from "next/image"
 import { Heart, MessageCircle, User, Eye, Calendar } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
@@ -10,6 +9,8 @@ import { postsService, type Post } from "@/services/posts"
 import { authService } from "@/services/auth"
 import { uploadService } from "@/services/upload"
 import CategoryBadge from "./CategoryBadge"
+import LoadingLink from "./LoadingLink"
+import LoadingButton from "./LoadingButton"
 import toast from "react-hot-toast"
 
 interface PostCardProps {
@@ -64,12 +65,14 @@ export default function PostCard({ post, onLikeUpdate }: PostCardProps) {
     <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100">
       {post.featuredImage && (
         <div className="aspect-video relative">
-          <Image
-            src={uploadService.getImageUrl(post.featuredImage) || "/placeholder.svg?height=240&width=400"}
-            alt={post.title}
-            fill
-            className="object-cover"
-          />
+          <LoadingLink href={`/posts/${post.slug}`} loadingText="Đang tải bài viết...">
+            <Image
+              src={uploadService.getImageUrl(post.featuredImage) || "/placeholder.svg?height=240&width=400"}
+              alt={post.title}
+              fill
+              className="object-cover hover:scale-105 transition-transform duration-300"
+            />
+          </LoadingLink>
           {post.category && (
             <div className="absolute top-4 left-4">
               <CategoryBadge category={post.category} />
@@ -95,12 +98,13 @@ export default function PostCard({ post, onLikeUpdate }: PostCardProps) {
               </div>
             )}
             <div className="ml-3">
-              <Link
+              <LoadingLink
                 href={`/users/${post.author.username}`}
                 className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                loadingText="Đang tải trang cá nhân..."
               >
                 {post.author.fullName}
-              </Link>
+              </LoadingLink>
               <div className="flex items-center text-sm text-gray-500">
                 <Calendar className="w-3 h-3 mr-1" />
                 {formatDistanceToNow(new Date(post.createdAt), {
@@ -119,46 +123,56 @@ export default function PostCard({ post, onLikeUpdate }: PostCardProps) {
         )}
 
         <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
-          <Link href={`/posts/${post.slug}`} className="hover:text-blue-600 transition-colors">
+          <LoadingLink
+            href={`/posts/${post.slug}`}
+            className="hover:text-blue-600 transition-colors"
+            loadingText="Đang tải bài viết..."
+          >
             {post.title}
-          </Link>
+          </LoadingLink>
         </h2>
 
         {post.excerpt && <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>}
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <button
+            <LoadingButton
               onClick={handleLike}
-              disabled={!currentUser || isLiking}
-              className={`flex items-center space-x-1 transition-colors ${
-                isLiked ? "text-red-500" : "text-gray-500"
-              } hover:text-red-500 ${!currentUser ? "cursor-not-allowed opacity-50" : ""}`}
+              disabled={!currentUser}
+              loading={isLiking}
+              loadingText="Đang xử lý..."
+              variant="secondary"
+              size="sm"
+              className={`!p-2 !bg-transparent !text-gray-500 hover:!text-red-500 hover:!bg-red-50 ${
+                isLiked ? "!text-red-500" : ""
+              } ${!currentUser ? "cursor-not-allowed opacity-50" : ""}`}
             >
               <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
-              <span className="text-sm">{likes.length}</span>
-            </button>
+              <span className="ml-1 text-sm">{likes.length}</span>
+            </LoadingButton>
 
-            <Link
+            <LoadingLink
               href={`/posts/${post.slug}#comments`}
-              className="flex items-center space-x-1 text-gray-500 hover:text-blue-500 transition-colors"
+              className="flex items-center space-x-1 text-gray-500 hover:text-blue-500 transition-colors p-2 rounded-md hover:bg-blue-50"
+              loadingText="Đang tải bình luận..."
             >
               <MessageCircle className="w-5 h-5" />
               <span className="text-sm">{post.comments?.length || 0}</span>
-            </Link>
+            </LoadingLink>
 
-            <div className="flex items-center space-x-1 text-gray-500">
+            <div className="flex items-center space-x-1 text-gray-500 p-2">
               <Eye className="w-5 h-5" />
               <span className="text-sm">{post.viewCount}</span>
             </div>
           </div>
 
-          <Link
+          <LoadingLink
             href={`/posts/${post.slug}`}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+            className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors px-3 py-1 rounded-md hover:bg-blue-50"
+            loadingText="Đang tải bài viết..."
           >
             Đọc thêm →
-          </Link>
+          </LoadingLink>
         </div>
       </div>
     </article>

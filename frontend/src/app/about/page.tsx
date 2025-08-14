@@ -1,213 +1,180 @@
-"use client"
-
-import Link from "next/link"
-import { Heart, Code, Coffee, Users, Target, Lightbulb, ArrowLeft } from "lucide-react"
+import { Users, Target, Heart, Award } from "lucide-react"
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Back button */}
-        <div className="mb-6">
-          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Quay lại trang chủ
-          </Link>
+      {/* Hero Section */}
+      <div className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">Về Blog2Z</h1>
+            <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+              Nền tảng blog cá nhân hiện đại, nơi bạn có thể chia sẻ câu chuyện, kiến thức và kết nối với cộng đồng yêu
+              thích viết lách.
+            </p>
+          </div>
         </div>
+      </div>
 
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Về chúng tôi</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Chào mừng đến với nền tảng blog cá nhân - nơi chia sẻ những câu chuyện, kiến thức và trải nghiệm của bạn với
-            cộng đồng.
-          </p>
-        </div>
-
-        {/* Main Content */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
-          <div className="p-8">
-            {/* Mission Section */}
-            <div className="mb-12">
-              <div className="flex items-center mb-6">
-                <Target className="w-8 h-8 text-blue-600 mr-3" />
-                <h2 className="text-2xl font-bold text-gray-900">Sứ mệnh của chúng tôi</h2>
-              </div>
-              <p className="text-gray-700 text-lg leading-relaxed mb-6">
-                Chúng tôi tin rằng mỗi người đều có những câu chuyện đáng kể, những kiến thức quý báu và những trải
-                nghiệm thú vị. Nền tảng blog này được tạo ra để giúp bạn chia sẻ tất cả những điều đó một cách dễ dàng
-                và hiệu quả.
+      {/* Mission Section */}
+      <div className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Sứ mệnh của chúng tôi</h2>
+              <p className="text-lg text-gray-600 mb-6">
+                Blog2Z được tạo ra với mục tiêu xây dựng một cộng đồng viết lách tích cực, nơi mọi người có thể tự do
+                chia sẻ những suy nghĩ, trải nghiệm và kiến thức của mình.
               </p>
-              <p className="text-gray-700 text-lg leading-relaxed">
-                Mục tiêu của chúng tôi là xây dựng một cộng đồng nơi mọi người có thể học hỏi, chia sẻ và kết nối thông
-                qua việc viết blog.
+              <p className="text-lg text-gray-600">
+                Chúng tôi tin rằng mỗi người đều có những câu chuyện đáng kể, và Blog2Z là nơi để những câu chuyện đó
+                được lắng nghe và truyền cảm hứng.
               </p>
             </div>
-
-            {/* Features Section */}
-            <div className="mb-12">
-              <div className="flex items-center mb-6">
-                <Lightbulb className="w-8 h-8 text-yellow-600 mr-3" />
-                <h2 className="text-2xl font-bold text-gray-900">Tính năng nổi bật</h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-6 bg-gray-50 rounded-lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Viết bài dễ dàng</h3>
-                  <p className="text-gray-700">
-                    Giao diện đơn giản, trực quan giúp bạn tập trung vào nội dung mà không bị phân tâm bởi các tính năng
-                    phức tạp.
-                  </p>
-                </div>
-                <div className="p-6 bg-gray-50 rounded-lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Quản lý danh mục</h3>
-                  <p className="text-gray-700">
-                    Tổ chức bài viết theo chủ đề với hệ thống danh mục linh hoạt, giúp người đọc dễ dàng tìm kiếm nội
-                    dung.
-                  </p>
-                </div>
-                <div className="p-6 bg-gray-50 rounded-lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Tương tác cộng đồng</h3>
-                  <p className="text-gray-700">
-                    Người đọc có thể thích, bình luận và chia sẻ bài viết, tạo nên những cuộc thảo luận bổ ích.
-                  </p>
-                </div>
-                <div className="p-6 bg-gray-50 rounded-lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Tìm kiếm thông minh</h3>
-                  <p className="text-gray-700">
-                    Hệ thống tìm kiếm mạnh mẽ giúp bạn dễ dàng khám phá những bài viết phù hợp với sở thích.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Values Section */}
-            <div className="mb-12">
-              <div className="flex items-center mb-6">
-                <Heart className="w-8 h-8 text-red-600 mr-3" />
-                <h2 className="text-2xl font-bold text-gray-900">Giá trị cốt lõi</h2>
-              </div>
-              <div className="space-y-6">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-3 mr-4"></div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Đơn giản và Hiệu quả</h3>
-                    <p className="text-gray-700">
-                      Chúng tôi tin vào sức mạnh của sự đơn giản. Giao diện và tính năng được thiết kế để bạn có thể bắt
-                      đầu viết ngay lập tức mà không cần học hỏi phức tạp.
-                    </p>
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="text-center">
+                  <div className="bg-blue-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <Users className="w-8 h-8 text-blue-600" />
                   </div>
+                  <h3 className="font-semibold text-gray-900">Cộng đồng</h3>
+                  <p className="text-sm text-gray-600 mt-2">Kết nối với những người cùng đam mê</p>
                 </div>
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-3 mr-4"></div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Cộng đồng và Kết nối</h3>
-                    <p className="text-gray-700">
-                      Chúng tôi xây dựng một môi trường tích cực nơi mọi người có thể chia sẻ, học hỏi và hỗ trợ lẫn
-                      nhau thông qua việc viết blog.
-                    </p>
+                <div className="text-center">
+                  <div className="bg-green-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <Target className="w-8 h-8 text-green-600" />
                   </div>
+                  <h3 className="font-semibold text-gray-900">Mục tiêu</h3>
+                  <p className="text-sm text-gray-600 mt-2">Phát triển kỹ năng viết và tư duy</p>
                 </div>
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-3 mr-4"></div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Chất lượng và Tự do</h3>
-                    <p className="text-gray-700">
-                      Chúng tôi tôn trọng quyền tự do sáng tạo và khuyến khích việc chia sẻ nội dung chất lượng cao, có
-                      giá trị với cộng đồng.
-                    </p>
+                <div className="text-center">
+                  <div className="bg-red-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <Heart className="w-8 h-8 text-red-600" />
                   </div>
+                  <h3 className="font-semibold text-gray-900">Đam mê</h3>
+                  <p className="text-sm text-gray-600 mt-2">Yêu thích việc chia sẻ và học hỏi</p>
+                </div>
+                <div className="text-center">
+                  <div className="bg-purple-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <Award className="w-8 h-8 text-purple-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900">Chất lượng</h3>
+                  <p className="text-sm text-gray-600 mt-2">Nội dung chất lượng và ý nghĩa</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Technology Section */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
-          <div className="p-8">
-            <div className="flex items-center mb-6">
-              <Code className="w-8 h-8 text-green-600 mr-3" />
-              <h2 className="text-2xl font-bold text-gray-900">Công nghệ sử dụng</h2>
-            </div>
-            <p className="text-gray-700 text-lg leading-relaxed mb-6">
-              Nền tảng blog được xây dựng bằng các công nghệ hiện đại và đáng tin cậy:
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Frontend</h3>
-                <ul className="space-y-2 text-gray-700">
-                  <li>• Next.js 14 - Framework React hiện đại</li>
-                  <li>• TypeScript - Đảm bảo tính ổn định và bảo trì</li>
-                  <li>• Tailwind CSS - Thiết kế responsive đẹp mắt</li>
-                  <li>• React Hook Form - Quản lý form hiệu quả</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Backend</h3>
-                <ul className="space-y-2 text-gray-700">
-                  <li>• Node.js & Express - Server mạnh mẽ</li>
-                  <li>• MySQL & Sequelize - Database ổn định</li>
-                  <li>• JWT Authentication - Bảo mật tài khoản</li>
-                  <li>• RESTful API - Kiến trúc chuẩn</li>
-                </ul>
-              </div>
-            </div>
+      {/* Features Section */}
+      <div className="bg-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900">Tính năng nổi bật</h2>
+            <p className="mt-4 text-lg text-gray-600">Những công cụ và tính năng giúp bạn viết blog hiệu quả</p>
           </div>
-        </div>
 
-        {/* Team Section */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
-          <div className="p-8">
-            <div className="flex items-center mb-6">
-              <Users className="w-8 h-8 text-purple-600 mr-3" />
-              <h2 className="text-2xl font-bold text-gray-900">Đội ngũ phát triển</h2>
-            </div>
-            <p className="text-gray-700 text-lg leading-relaxed mb-8">
-              Dự án được phát triển bởi một đội ngũ đam mê công nghệ và yêu thích việc chia sẻ kiến thức.
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mb-4">
-                <Users className="w-12 h-12 text-gray-600" />
+              <div className="bg-blue-50 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Trình soạn thảo mạnh mẽ</h3>
+                <p className="text-gray-600">
+                  Trình soạn thảo WYSIWYG với đầy đủ tính năng định dạng, chèn hình ảnh và tạo nội dung phong phú.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Đội ngũ phát triển</h3>
-              <p className="text-gray-600 mb-4">
-                Chúng tôi là những lập trình viên trẻ tuổi, luôn cố gắng mang đến những sản phẩm tốt nhất cho cộng đồng.
-              </p>
-              <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-                <span className="flex items-center">
-                  <Coffee className="w-4 h-4 mr-1" />
-                  Powered by coffee
-                </span>
-                <span className="flex items-center">
-                  <Heart className="w-4 h-4 mr-1" />
-                  Made with love
-                </span>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-green-50 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Quản lý danh mục</h3>
+                <p className="text-gray-600">
+                  Tổ chức bài viết theo danh mục, giúp người đọc dễ dàng tìm kiếm nội dung theo chủ đề yêu thích.
+                </p>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-purple-50 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Tương tác cộng đồng</h3>
+                <p className="text-gray-600">
+                  Hệ thống bình luận, like và follow giúp xây dựng cộng đồng tương tác tích cực.
+                </p>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-yellow-50 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Tìm kiếm thông minh</h3>
+                <p className="text-gray-600">
+                  Công cụ tìm kiếm mạnh mẽ giúp khám phá nội dung theo từ khóa, tác giả hoặc danh mục.
+                </p>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-red-50 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Responsive Design</h3>
+                <p className="text-gray-600">Giao diện thân thiện trên mọi thiết bị, từ desktop đến mobile.</p>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-indigo-50 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Bảo mật cao</h3>
+                <p className="text-gray-600">
+                  Hệ thống bảo mật nhiều lớp, bảo vệ thông tin và nội dung của người dùng.
+                </p>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Contact Section */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Liên hệ với chúng tôi</h2>
-            <p className="text-gray-700 text-lg mb-6">
-              Bạn có ý tưởng, góp ý hoặc cần hỗ trợ? Chúng tôi luôn sẵn sàng lắng nghe!
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
-              <a
-                href="mailto:contact@myblog.com"
-                className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                Email: contact@myblog.com
-              </a>
-              <Link
-                href="/contact"
-                className="flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-              >
-                Gửi tin nhắn
-              </Link>
+      {/* Team Section */}
+      <div className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900">Đội ngũ phát triển</h2>
+            <p className="mt-4 text-lg text-gray-600">Những người đam mê công nghệ và viết lách</p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="max-w-3xl mx-auto">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Blog2Z Team</h3>
+              <p className="text-lg text-gray-600 mb-6">
+                Chúng tôi là một nhóm các developer và content creator đam mê, luôn nỗ lực để mang đến trải nghiệm tốt
+                nhất cho cộng đồng blogger.
+              </p>
+              <p className="text-gray-600">
+                Với kinh nghiệm trong lĩnh vực phát triển web và hiểu biết sâu sắc về nhu cầu của người viết blog, chúng
+                tôi không ngừng cải tiến và phát triển Blog2Z để trở thành nền tảng blog tốt nhất.
+              </p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="bg-blue-600 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">Sẵn sàng bắt đầu hành trình viết blog?</h2>
+          <p className="text-xl text-blue-100 mb-8">
+            Tham gia cộng đồng Blog2Z ngay hôm nay và chia sẻ câu chuyện của bạn
+          </p>
+          <div className="space-x-4">
+            <a
+              href="/register"
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 transition-colors"
+            >
+              Đăng ký ngay
+            </a>
+            <a
+              href="/contact"
+              className="inline-flex items-center px-6 py-3 border-2 border-white text-base font-medium rounded-md text-white hover:bg-white hover:text-blue-600 transition-colors"
+            >
+              Liên hệ với chúng tôi
+            </a>
           </div>
         </div>
       </div>

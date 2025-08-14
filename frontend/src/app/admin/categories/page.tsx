@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { authService } from "@/services/auth"
 import { categoriesService, type Category } from "@/services/categories"
-import { Tag, Plus, Edit, Trash2, Search, Shield, Loader2 } from "lucide-react"
+import { Tag, Plus, Edit, Trash2, Search, Shield, Loader2, ArrowLeft } from "lucide-react"
 import toast from "react-hot-toast"
 
 export default function AdminCategoriesPage() {
@@ -24,7 +24,7 @@ export default function AdminCategoriesPage() {
       return
     }
     loadCategories()
-  }, [currentUser, router])
+  }, [router])
 
   useEffect(() => {
     const filtered = categories.filter(
@@ -86,12 +86,21 @@ export default function AdminCategoriesPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div>
+          <div className="flex items-center">
+            <Link
+              href="/admin"
+              className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors mr-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Quay lại Admin
+            </Link>
+            <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center">
               <Tag className="w-8 h-8 text-blue-600 mr-3" />
               Quản lý danh mục
             </h1>
             <p className="text-gray-600 mt-1">Quản lý các danh mục bài viết</p>
+            </div>
           </div>
 
           <Link

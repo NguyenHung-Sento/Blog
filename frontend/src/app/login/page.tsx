@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import toast from "react-hot-toast"
 import { authService } from "@/services/auth"
 import { Loader2, Eye, EyeOff } from "lucide-react"
+import LoadingLink from "@/components/LoadingLink"
+import LoadingButton from "@/components/LoadingButton"
 
 const loginSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
@@ -67,9 +68,9 @@ export default function LoginPage() {
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Đăng nhập vào tài khoản</h2>
           <p className="mt-2 text-sm text-gray-600">
             Hoặc{" "}
-            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+            <LoadingLink href="/register" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
               tạo tài khoản mới
-            </Link>
+            </LoadingLink>
           </p>
         </div>
       </div>
@@ -122,17 +123,17 @@ export default function LoginPage() {
 
             <div className="flex items-center justify-between">
               <div className="text-sm">
-                <Link
+                <LoadingLink
                   href="/forgot-password"
                   className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
                 >
                   Quên mật khẩu?
-                </Link>
+                </LoadingLink>
               </div>
             </div>
 
             <div>
-              <button
+              <LoadingButton
                 type="submit"
                 disabled={isLoading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -145,7 +146,7 @@ export default function LoginPage() {
                 ) : (
                   "Đăng nhập"
                 )}
-              </button>
+              </LoadingButton>
             </div>
           </form>
 
@@ -162,9 +163,9 @@ export default function LoginPage() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Chưa có tài khoản?{" "}
-                <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                <LoadingLink href="/register" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
                   Đăng ký ngay
-                </Link>
+                </LoadingLink>
               </p>
             </div>
           </div>

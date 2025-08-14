@@ -1,10 +1,9 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/page": "app/page.js",
   "/login/page": "app/login/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/admin/page": "app/admin/page.js",
+  "/register/page": "app/register/page.js",
+  "/admin/users/page": "app/admin/users/page.js",
   "/profile/page": "app/profile/page.js",
-  "/users/[username]/page": "app/users/[username]/page.js",
-  "/edit-post/[id]/page": "app/edit-post/[id]/page.js"
+  "/admin/page": "app/admin/page.js",
+  "/page": "app/page.js",
+  "/users/[username]/page": "app/users/[username]/page.js"
 }
