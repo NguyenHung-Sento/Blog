@@ -90,39 +90,39 @@
 - npm hoặc yarn
 
 ### 1. Clone repository
-\`\`\`bash
+```bash
 git clone <repository-url>
 cd personal-blog
-\`\`\`
+```
 
 ### 2. Cài đặt Backend
-\`\`\`bash
+```bash
 cd backend
 npm install
 
 # Cấu hình environment
 cp .env.example .env
 # Chỉnh sửa file .env với thông tin database và email
-\`\`\`
+```
 
 ### 3. Cài đặt Frontend
-\`\`\`bash
+```bash
 cd frontend
 npm install
 
 # Cấu hình environment
 cp .env.example .env.local
 # Chỉnh sửa file .env.local nếu cần
-\`\`\`
+```
 
 ### 4. Tạo Database
-\`\`\`bash
+```bash
 # Tạo database và bảng
 mysql -u root -p < scripts/init-db.sql
-\`\`\`
+```
 
 ### 5. Chạy ứng dụng
-\`\`\`bash
+```bash
 # Terminal 1: Backend
 cd backend
 npm run dev
@@ -130,7 +130,7 @@ npm run dev
 # Terminal 2: Frontend  
 cd frontend
 npm run dev
-\`\`\`
+```
 
 - Backend: `http://localhost:5000`
 - Frontend: `http://localhost:3000`
@@ -138,7 +138,7 @@ npm run dev
 ## 🔧 Cấu hình Environment
 
 ### Backend (.env)
-\`\`\`env
+```env
 # Server
 PORT=5000
 NODE_ENV=development
@@ -160,14 +160,14 @@ EMAIL_PORT=587
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASS=your-app-password
 EMAIL_FROM=your-email@gmail.com
-\`\`\`
+```
 
 ### Frontend (.env.local)
-\`\`\`env
+```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 NEXT_PUBLIC_APP_NAME=Personal Blog
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-\`\`\`
+```
 
 ## 📊 Database Schema
 
