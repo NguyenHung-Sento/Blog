@@ -7,7 +7,7 @@ const authenticateToken = async (req, res, next) => {
     const token = authHeader && authHeader.split(" ")[1] // Bearer TOKEN
 
     if (!token) {
-      return res.status(401).json({ error: "Access token required" })
+      return res.status(401).json({ error: "Access token is required" })
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
@@ -22,8 +22,14 @@ const authenticateToken = async (req, res, next) => {
     req.user = user
     next()
   } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ error: "Access token expired" })
+    } else if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({ error: "Invalid access token" })
+    }
+
     console.error("Auth middleware error:", error)
-    return res.status(403).json({ error: "Invalid or expired token" })
+    return res.status(500).json({ error: "Internal server error" })
   }
 }
 
@@ -42,9 +48,10 @@ const optionalAuth = async (req, res, next) => {
         req.user = user
       }
     }
+
     next()
   } catch (error) {
-    // Continue without authentication
+    // For optional auth, we don't return error, just continue without user
     next()
   }
 }

@@ -11,6 +11,7 @@ interface CategoryBadgeProps {
     postCount?: number
   }
   showCount?: boolean
+    size?: "sm" | "md"
 }
 
 export default function CategoryBadge({ category, showCount = false }: CategoryBadgeProps) {

@@ -49,9 +49,16 @@ export interface PostsResponse {
 }
 
 export const postsService = {
-  async getAllPosts(page = 1, limit = 10, search = "", categoryId?: number) {
+  async getAllPosts(page = 1, limit = 10, search = "", categoryId?: number, sort = "newest") {
     const response = await api.get("/posts", {
-      params: { page, limit, search, category: categoryId },
+      params: { page, limit, search, category: categoryId, sort },
+    })
+    return response.data as PostsResponse
+  },
+
+  async getFollowingPosts(page = 1, limit = 10, sort = "newest") {
+    const response = await api.get("/posts/following", {
+      params: { page, limit, sort },
     })
     return response.data as PostsResponse
   },
@@ -59,6 +66,13 @@ export const postsService = {
   async getPostBySlug(slug: string) {
     const response = await api.get(`/posts/${slug}`)
     return response.data.post as Post
+  },
+
+  async getRelatedPosts(postId: number, limit = 5) {
+    const response = await api.get(`/posts/${postId}/related`, {
+      params: { limit },
+    })
+    return response.data.posts as Post[]
   },
 
   async createPost(data: CreatePostData) {

@@ -3,6 +3,8 @@ const { body } = require("express-validator")
 const { authenticateToken, optionalAuth } = require("../middleware/auth")
 const {
   getAllPosts,
+  getFollowingPosts,
+  getRelatedPosts,
   getPostBySlug,
   createPost,
   updatePost,
@@ -23,8 +25,10 @@ const postValidation = [
 
 // Routes
 router.get("/", optionalAuth, getAllPosts)
+router.get("/following", authenticateToken, getFollowingPosts)
 router.get("/my-posts", authenticateToken, getUserPosts)
 router.get("/:slug", optionalAuth, getPostBySlug)
+router.get("/:id/related", getRelatedPosts)
 router.post("/", authenticateToken, postValidation, createPost)
 router.put("/:id", authenticateToken, postValidation, updatePost)
 router.delete("/:id", authenticateToken, deletePost)

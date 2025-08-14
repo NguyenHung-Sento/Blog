@@ -2,13 +2,50 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const crypto = require("crypto")
 const { validationResult } = require("express-validator")
-const { User, PasswordReset } = require("../models")
+const { User, PasswordReset, RefreshToken } = require("../models")
 const { sendPasswordResetEmail } = require("../services/emailService")
 const fs = require("fs")
 const path = require("path")
 
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" })
+const generateAccessToken = (userId) => {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "15m" })
+}
+
+const generateRefreshToken = () => {
+  return crypto.randomBytes(64).toString("hex")
+}
+
+const createRefreshToken = async (userId, deviceInfo = null) => {
+  const token = generateRefreshToken()
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+
+  // Remove old refresh tokens for this user (optional: keep only latest 5)
+  const existingTokens = await RefreshToken.findAll({
+    where: { userId, isRevoked: false },
+    order: [["createdAt", "DESC"]],
+  })
+
+  if (existingTokens.length >= 5) {
+    // Keep only the 4 most recent tokens
+    const tokensToRevoke = existingTokens.slice(4)
+    await RefreshToken.update(
+      { isRevoked: true },
+      {
+        where: {
+          id: tokensToRevoke.map((t) => t.id),
+        },
+      },
+    )
+  }
+
+  const refreshToken = await RefreshToken.create({
+    token,
+    userId,
+    expiresAt,
+    deviceInfo,
+  })
+
+  return refreshToken.token
 }
 
 const register = async (req, res) => {
@@ -44,12 +81,14 @@ const register = async (req, res) => {
       fullName,
     })
 
-    // Generate token
-    const token = generateToken(user.id)
+    // Generate tokens
+    const accessToken = generateAccessToken(user.id)
+    const refreshToken = await createRefreshToken(user.id, req.headers["user-agent"])
 
     res.status(201).json({
       message: "User created successfully",
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
         username: user.username,
@@ -88,12 +127,14 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" })
     }
 
-    // Generate token
-    const token = generateToken(user.id)
+    // Generate tokens
+    const accessToken = generateAccessToken(user.id)
+    const refreshToken = await createRefreshToken(user.id, req.headers["user-agent"])
 
     res.json({
       message: "Login successful",
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
         username: user.username,
@@ -105,6 +146,86 @@ const login = async (req, res) => {
     })
   } catch (error) {
     console.error("Login error:", error)
+    res.status(500).json({ error: "Internal server error" })
+  }
+}
+
+const refreshAccessToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body
+
+    if (!refreshToken) {
+      return res.status(401).json({ error: "Refresh token is required" })
+    }
+
+    // Find refresh token
+    const tokenRecord = await RefreshToken.findOne({
+      where: {
+        token: refreshToken,
+        isRevoked: false,
+        expiresAt: {
+          [require("sequelize").Op.gt]: new Date(),
+        },
+      },
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: { exclude: ["password"] },
+        },
+      ],
+    })
+
+    if (!tokenRecord) {
+      return res.status(401).json({ error: "Invalid or expired refresh token" })
+    }
+
+    // Generate new access token
+    const accessToken = generateAccessToken(tokenRecord.userId)
+
+    // Optionally generate new refresh token (rotate refresh tokens)
+    const newRefreshToken = await createRefreshToken(tokenRecord.userId, req.headers["user-agent"])
+
+    // Revoke old refresh token
+    await RefreshToken.update({ isRevoked: true }, { where: { id: tokenRecord.id } })
+
+    res.json({
+      accessToken,
+      refreshToken: newRefreshToken,
+      user: tokenRecord.user,
+    })
+  } catch (error) {
+    console.error("Refresh token error:", error)
+    res.status(500).json({ error: "Internal server error" })
+  }
+}
+
+const logout = async (req, res) => {
+  try {
+    const { refreshToken } = req.body
+
+    if (refreshToken) {
+      // Revoke refresh token
+      await RefreshToken.update({ isRevoked: true }, { where: { token: refreshToken } })
+    }
+
+    res.json({ message: "Logged out successfully" })
+  } catch (error) {
+    console.error("Logout error:", error)
+    res.status(500).json({ error: "Internal server error" })
+  }
+}
+
+const logoutAll = async (req, res) => {
+  try {
+    const userId = req.user.id
+
+    // Revoke all refresh tokens for this user
+    await RefreshToken.update({ isRevoked: true }, { where: { userId } })
+
+    res.json({ message: "Logged out from all devices successfully" })
+  } catch (error) {
+    console.error("Logout all error:", error)
     res.status(500).json({ error: "Internal server error" })
   }
 }
@@ -204,7 +325,10 @@ const changePassword = async (req, res) => {
     // Update password
     await User.update({ password: hashedNewPassword }, { where: { id: userId } })
 
-    res.json({ message: "Password changed successfully" })
+    // Revoke all refresh tokens (force re-login on all devices)
+    await RefreshToken.update({ isRevoked: true }, { where: { userId } })
+
+    res.json({ message: "Password changed successfully. Please login again on all devices." })
   } catch (error) {
     console.error("Change password error:", error)
     res.status(500).json({ error: "Internal server error" })
@@ -290,7 +414,10 @@ const resetPassword = async (req, res) => {
     // Mark token as used
     await PasswordReset.update({ used: true }, { where: { id: resetRecord.id } })
 
-    res.json({ message: "Password reset successfully" })
+    // Revoke all refresh tokens for this user
+    await RefreshToken.update({ isRevoked: true }, { where: { userId: user.id } })
+
+    res.json({ message: "Password reset successfully. Please login again." })
   } catch (error) {
     console.error("Reset password error:", error)
     res.status(500).json({ error: "Internal server error" })
@@ -300,6 +427,9 @@ const resetPassword = async (req, res) => {
 module.exports = {
   register,
   login,
+  refreshAccessToken,
+  logout,
+  logoutAll,
   getProfile,
   updateProfile,
   updateAvatar,

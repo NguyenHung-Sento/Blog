@@ -9,6 +9,7 @@ import { commentsService, type Comment } from "@/services/comments"
 import { authService } from "@/services/auth"
 import CategoryBadge from "@/components/CategoryBadge"
 import CommentSection from "@/components/CommentSection"
+import RelatedPosts from "@/components/RelatedPosts"
 import { Loader2, Heart, MessageCircle, Eye, Calendar, User, ArrowLeft } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { vi } from "date-fns/locale"
@@ -292,6 +293,11 @@ export default function PostDetailPage() {
             onCommentUpdated={handleCommentUpdated}
             onCommentDeleted={handleCommentDeleted}
           />
+        </div>
+
+        {/* Related Posts Section */}
+        <div className="mt-8">
+          <RelatedPosts postId={post.id} />
         </div>
       </main>
     </div>

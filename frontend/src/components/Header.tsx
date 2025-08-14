@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { User, PenTool, LogOut, Menu, X, Search, Settings, LayoutDashboard, Shield } from "lucide-react"
+import { User, PenTool, LogOut, Menu, X, Search, Settings, LayoutDashboard, Shield, Info, Mail } from "lucide-react"
 import { authService } from "@/services/auth"
 import type { User as UserType } from "@/services/auth"
 import LoadingLink from "./LoadingLink"
@@ -101,6 +101,22 @@ export default function Header() {
               loadingText="Đang tải danh mục..."
             >
               Danh mục
+            </LoadingLink>
+            <LoadingLink
+              href="/about"
+              className="flex items-center text-gray-700 hover:text-gray-900 transition-colors"
+              loadingText="Đang tải về chúng tôi..."
+            >
+              <Info className="w-4 h-4 mr-1" />
+              Về chúng tôi
+            </LoadingLink>
+            <LoadingLink
+              href="/contact"
+              className="flex items-center text-gray-700 hover:text-gray-900 transition-colors"
+              loadingText="Đang tải liên hệ..."
+            >
+              <Mail className="w-4 h-4 mr-1" />
+              Liên hệ
             </LoadingLink>
             <LoadingLink
               href="/search"
@@ -213,6 +229,22 @@ export default function Header() {
                 loadingText="Đang tải danh mục..."
               >
                 Danh mục
+              </LoadingLink>
+              <LoadingLink
+                href="/about"
+                className="block px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+                loadingText="Đang tải về chúng tôi..."
+              >
+                Về chúng tôi
+              </LoadingLink>
+              <LoadingLink
+                href="/contact"
+                className="block px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+                loadingText="Đang tải liên hệ..."
+              >
+                Liên hệ
               </LoadingLink>
               <LoadingLink
                 href="/search"

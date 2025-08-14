@@ -1,5 +1,5 @@
 const { validationResult } = require("express-validator")
-const { Post, User, Like, Comment, Category } = require("../models")
+const { Post, User, Like, Comment, Category, Follow } = require("../models")
 const { Op } = require("sequelize")
 
 const createSlug = (title) => {
@@ -24,6 +24,7 @@ const getAllPosts = async (req, res) => {
     const offset = (page - 1) * limit
     const search = req.query.search || ""
     const categoryId = req.query.category || ""
+    const sort = req.query.sort || "newest"
 
     const whereClause = {
       published: true,
@@ -35,6 +36,19 @@ const getAllPosts = async (req, res) => {
         ],
       }),
       ...(categoryId && { categoryId: Number.parseInt(categoryId) }),
+    }
+
+    let orderClause
+    if (sort === "popular") {
+      // Sắp xếp theo số lượng like và view
+      orderClause = [
+        [{ model: Like, as: "likes" }, "id", "DESC"],
+        ["viewCount", "DESC"],
+        ["createdAt", "DESC"],
+      ]
+    } else {
+      // Mặc định sắp xếp theo mới nhất
+      orderClause = [["createdAt", "DESC"]]
     }
 
     const { count, rows: posts } = await Post.findAndCountAll({
@@ -61,9 +75,10 @@ const getAllPosts = async (req, res) => {
           attributes: ["id"],
         },
       ],
-      order: [["createdAt", "DESC"]],
+      order: orderClause,
       limit,
       offset,
+      distinct: true,
     })
 
     res.json({
@@ -78,6 +93,191 @@ const getAllPosts = async (req, res) => {
     })
   } catch (error) {
     console.error("Get posts error:", error)
+    res.status(500).json({ error: "Internal server error" })
+  }
+}
+
+const getFollowingPosts = async (req, res) => {
+  try {
+    const userId = req.user.id
+    const page = Number.parseInt(req.query.page) || 1
+    const limit = Number.parseInt(req.query.limit) || 10
+    const offset = (page - 1) * limit
+    const sort = req.query.sort || "newest"
+
+    // Lấy danh sách người dùng đang theo dõi
+    const following = await Follow.findAll({
+      where: { followerId: userId },
+      attributes: ["followingId"],
+    })
+
+    const followingIds = following.map((f) => f.followingId)
+
+    if (followingIds.length === 0) {
+      return res.json({
+        posts: [],
+        pagination: {
+          currentPage: page,
+          totalPages: 0,
+          totalPosts: 0,
+          hasNext: false,
+          hasPrev: false,
+        },
+      })
+    }
+
+    let orderClause
+    if (sort === "popular") {
+      orderClause = [
+        [{ model: Like, as: "likes" }, "id", "DESC"],
+        ["viewCount", "DESC"],
+        ["createdAt", "DESC"],
+      ]
+    } else {
+      orderClause = [["createdAt", "DESC"]]
+    }
+
+    const { count, rows: posts } = await Post.findAndCountAll({
+      where: {
+        published: true,
+        authorId: { [Op.in]: followingIds },
+      },
+      include: [
+        {
+          model: User,
+          as: "author",
+          attributes: ["id", "username", "fullName", "avatar"],
+        },
+        {
+          model: Category,
+          as: "category",
+          attributes: ["id", "name", "slug", "color"],
+        },
+        {
+          model: Like,
+          as: "likes",
+          attributes: ["userId"],
+        },
+        {
+          model: Comment,
+          as: "comments",
+          attributes: ["id"],
+        },
+      ],
+      order: orderClause,
+      limit,
+      offset,
+      distinct: true,
+    })
+
+    res.json({
+      posts,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(count / limit),
+        totalPosts: count,
+        hasNext: page < Math.ceil(count / limit),
+        hasPrev: page > 1,
+      },
+    })
+  } catch (error) {
+    console.error("Get following posts error:", error)
+    res.status(500).json({ error: "Internal server error" })
+  }
+}
+
+const getRelatedPosts = async (req, res) => {
+  try {
+    const { id } = req.params
+    const limit = Number.parseInt(req.query.limit) || 5
+
+    const currentPost = await Post.findByPk(id, {
+      include: [
+        {
+          model: Category,
+          as: "category",
+          attributes: ["id"],
+        },
+      ],
+    })
+
+    if (!currentPost) {
+      return res.status(404).json({ error: "Post not found" })
+    }
+
+    const whereClause = {
+      published: true,
+      id: { [Op.ne]: id }, // Loại trừ bài viết hiện tại
+    }
+
+    // Ưu tiên bài viết cùng category
+    if (currentPost.categoryId) {
+      whereClause.categoryId = currentPost.categoryId
+    }
+
+    let posts = await Post.findAll({
+      where: whereClause,
+      include: [
+        {
+          model: User,
+          as: "author",
+          attributes: ["id", "username", "fullName", "avatar"],
+        },
+        {
+          model: Category,
+          as: "category",
+          attributes: ["id", "name", "slug", "color"],
+        },
+        {
+          model: Like,
+          as: "likes",
+          attributes: ["userId"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+      limit,
+    })
+
+    // Nếu không đủ bài viết cùng category, lấy thêm bài viết khác
+    if (posts.length < limit) {
+      const remainingLimit = limit - posts.length
+      const additionalPosts = await Post.findAll({
+        where: {
+          published: true,
+          id: {
+            [Op.notIn]: [id, ...posts.map((p) => p.id)],
+          },
+        },
+        include: [
+          {
+            model: User,
+            as: "author",
+            attributes: ["id", "username", "fullName", "avatar"],
+          },
+          {
+            model: Category,
+            as: "category",
+            attributes: ["id", "name", "slug", "color"],
+          },
+          {
+            model: Like,
+            as: "likes",
+            attributes: ["userId"],
+          },
+        ],
+        order: [
+          ["viewCount", "DESC"],
+          ["createdAt", "DESC"],
+        ],
+        limit: remainingLimit,
+      })
+
+      posts = [...posts, ...additionalPosts]
+    }
+
+    res.json({ posts })
+  } catch (error) {
+    console.error("Get related posts error:", error)
     res.status(500).json({ error: "Internal server error" })
   }
 }
@@ -333,6 +533,8 @@ const getUserPosts = async (req, res) => {
 
 module.exports = {
   getAllPosts,
+  getFollowingPosts,
+  getRelatedPosts,
   getPostBySlug,
   createPost,
   updatePost,

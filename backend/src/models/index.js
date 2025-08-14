@@ -5,11 +5,13 @@ const Like = require("./Like")
 const Category = require("./Category")
 const Follow = require("./Follow")
 const PasswordReset = require("./PasswordReset")
+const RefreshToken = require("./RefreshToken")
 
 // User associations
 User.hasMany(Post, { foreignKey: "authorId", as: "posts" })
 User.hasMany(Comment, { foreignKey: "authorId", as: "comments" })
 User.hasMany(Like, { foreignKey: "userId", as: "likes" })
+User.hasMany(RefreshToken, { foreignKey: "userId", as: "refreshTokens" })
 
 // Follow associations
 User.hasMany(Follow, { foreignKey: "followerId", as: "following" })
@@ -38,6 +40,9 @@ Category.hasMany(Post, { foreignKey: "categoryId", as: "posts" })
 Follow.belongsTo(User, { foreignKey: "followerId", as: "follower" })
 Follow.belongsTo(User, { foreignKey: "followingId", as: "following" })
 
+// RefreshToken associations
+RefreshToken.belongsTo(User, { foreignKey: "userId", as: "user" })
+
 module.exports = {
   User,
   Post,
@@ -46,4 +51,5 @@ module.exports = {
   Category,
   Follow,
   PasswordReset,
+  RefreshToken,
 }

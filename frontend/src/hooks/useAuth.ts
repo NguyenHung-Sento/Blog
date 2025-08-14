@@ -12,7 +12,7 @@ export function useAuth() {
     const checkAuth = () => {
       const currentUser = authService.getCurrentUser()
       const token = authService.getToken()
-      
+
       setUser(currentUser)
       setIsAuthenticated(!!token && !!currentUser)
       setIsLoading(false)
@@ -48,8 +48,14 @@ export function useAuth() {
     return result
   }
 
-  const logout = () => {
-    authService.logout()
+  const logout = async () => {
+    await authService.logout()
+    setUser(null)
+    setIsAuthenticated(false)
+  }
+
+  const logoutAll = async () => {
+    await authService.logoutAll()
     setUser(null)
     setIsAuthenticated(false)
   }
@@ -60,6 +66,12 @@ export function useAuth() {
     return updatedUser
   }
 
+  const changePassword = async (data: { currentPassword: string; newPassword: string }) => {
+    await authService.changePassword(data)
+    setUser(null)
+    setIsAuthenticated(false)
+  }
+
   return {
     user,
     isLoading,
@@ -67,6 +79,8 @@ export function useAuth() {
     login,
     register,
     logout,
+    logoutAll,
     updateProfile,
+    changePassword,
   }
 }
