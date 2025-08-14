@@ -2,7 +2,7 @@
 
 Ứng dụng blog hiện đại được xây dựng với kiến trúc tách biệt giữa Frontend và Backend, hỗ trợ đầy đủ các tính năng của một nền tảng blog.
 
-## 🏗️ Kiến trúc hệ thống
+## Kiến trúc hệ thống
 
 ### Backend (Node.js + Express + MySQL + Sequelize)
 - **API RESTful** với Express.js
@@ -22,9 +22,9 @@
 - **Rich Text Editor** CKEditor 5
 - **Image Processing** React Image Crop
 
-## 🚀 Tính năng chính
+## Tính năng chính
 
-### 🔐 Xác thực & Bảo mật
+### Xác thực & Bảo mật
 - ✅ Đăng ký, đăng nhập với validation
 - ✅ Access Token (15 phút) & Refresh Token (7 ngày)
 - ✅ Tự động refresh token khi hết hạn
@@ -40,7 +40,7 @@
 - ✅ Thống kê followers/following
 - ✅ Role-based access (User/Admin)
 
-### 📝 Quản lý bài viết
+### Quản lý bài viết
 - ✅ Tạo, sửa, xóa bài viết với Rich Text Editor
 - ✅ Upload ảnh đại diện cho bài viết
 - ✅ Phân loại bài viết theo categories
@@ -49,7 +49,7 @@
 - ✅ Đếm lượt xem tự động
 - ✅ Tìm kiếm bài viết với debounce
 
-### 🏠 Trang chủ & Navigation
+### Trang chủ & Navigation
 - ✅ **Infinite Scroll** - Cuộn vô hạn tự động tải thêm
 - ✅ Filter theo "Tất cả" hoặc "Đang theo dõi"
 - ✅ Sắp xếp theo "Mới nhất" hoặc "Nổi bật"
@@ -62,7 +62,7 @@
 - ✅ Sửa, xóa bình luận của mình
 - ✅ Đếm số lượng likes và comments
 
-### 🎯 Khám phá nội dung
+### Khám phá nội dung
 - ✅ **Bài viết liên quan** trong trang chi tiết
 - ✅ Danh sách theo categories
 - ✅ Tìm kiếm với filters
@@ -75,7 +75,7 @@
 - ✅ Thống kê tổng quan
 - ✅ Phân quyền admin
 
-### 🎨 Giao diện & UX
+### Giao diện & UX
 - ✅ Responsive design cho mọi thiết bị
 - ✅ Loading states & indicators
 - ✅ Error handling với toast notifications
@@ -169,7 +169,7 @@ NEXT_PUBLIC_APP_NAME=Personal Blog
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-## 📊 Database Schema
+## Database Schema
 
 ### Bảng chính
 - **users**: Thông tin người dùng, role, profile
@@ -190,7 +190,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 - Category 1-n Posts
 - Comment 1-n Comments (replies)
 
-## 🔐 API Documentation
+## API Documentation
 
 ### Authentication
 - `POST /api/auth/register` - Đăng ký tài khoản
@@ -245,4 +245,41 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 - `PUT /api/admin/users/:id/toggle-active` - Kích hoạt/vô hiệu hóa user
 - `GET /api/admin/posts` - Quản lý posts
 - `DELETE /api/admin/posts/:id` - Xóa post (admin)
+
+## Một số giao diện
+
+### Trang chủ
+<img width="1798" height="917" alt="image" src="https://github.com/user-attachments/assets/958293bd-5b4b-4104-ac66-945a1f0aedb5" />
+
+### Danh mục
+<img width="1618" height="914" alt="image" src="https://github.com/user-attachments/assets/c38ee053-02de-42f1-8a43-9a882d36d285" />
+
+### Viết bài
+<img width="1382" height="921" alt="image" src="https://github.com/user-attachments/assets/668c6479-c191-47ed-83a0-1ec3a1335a4d" />
+
+### Tìm kiếm
+<img width="1730" height="916" alt="image" src="https://github.com/user-attachments/assets/83c67e56-a7e0-4f7c-8d34-86d50c52542a" />
+
+### Thống kê cá nhân
+<img width="1632" height="916" alt="image" src="https://github.com/user-attachments/assets/c8fb1470-f523-49b7-b138-21f1c9b751ba" />
+
+### Profile
+<img width="1545" height="916" alt="image" src="https://github.com/user-attachments/assets/aec35254-cbe1-4eae-8fcf-fb88765dd574" />
+
+### Trang cá nhân người khác
+<img width="1284" height="915" alt="image" src="https://github.com/user-attachments/assets/760228ce-f00c-461f-bb37-301c85947940" />
+
+### Quản trị Admin
+<img width="1268" height="912" alt="image" src="https://github.com/user-attachments/assets/e54ab947-cf95-4fa3-b03f-bb8ca56df9eb" />
+
+### Quản lý user
+<img width="1642" height="916" alt="image" src="https://github.com/user-attachments/assets/5099c549-dd9a-4e13-b7be-45e23adfa5d4" />
+
+### Quản lý bài post
+<img width="1696" height="917" alt="image" src="https://github.com/user-attachments/assets/bb09de38-5bfc-4296-ad52-dc1878509108" />
+
+### Quản lý danh mục
+<img width="1662" height="910" alt="image" src="https://github.com/user-attachments/assets/eb8be28e-b176-4fe0-871e-05a3ca8743a5" />
+
+
 
